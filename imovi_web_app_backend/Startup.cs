@@ -23,8 +23,8 @@ namespace imovi_web_app_backend {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
-            string con = "Server=(localdb)\\mssqllocaldb;Database=UsersDB;Trusted_Connection=True;";
-            services.AddDbContext<UsersContext>(options => options.UseSqlServer(con));
+            string con = "Server=(localdb)\\mssqllocaldb;Database=ImoviDB;Trusted_Connection=True;";
+            services.AddDbContext<ImoviDbContext>(options => options.UseSqlServer(con));
 
             services.AddControllers();
         }

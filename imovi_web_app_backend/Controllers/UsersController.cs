@@ -11,8 +11,8 @@ namespace imovi_web_app_backend.Controllers {
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase {
-        UsersContext db;
-        public UsersController(UsersContext context) {
+        ImoviDbContext db;
+        public UsersController(ImoviDbContext context) {
             db = context;
             if (!db.Users.Any()) {
                 db.Users.Add(new User { Name = "Tom", Age = 26 });
