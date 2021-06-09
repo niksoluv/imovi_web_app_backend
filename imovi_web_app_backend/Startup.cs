@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace imovi_web_app_backend {
     public class Startup {
@@ -25,7 +26,11 @@ namespace imovi_web_app_backend {
         public void ConfigureServices(IServiceCollection services) {
             string con = "Server=(localdb)\\mssqllocaldb;Database=ImoviDB;Trusted_Connection=True;";
             services.AddDbContext<ImoviDbContext>(options => options.UseSqlServer(con));
-
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => 
+                {
+                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/api/users/auth");
+                });
             services.AddControllers();
         }
 
@@ -39,6 +44,7 @@ namespace imovi_web_app_backend {
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => {
