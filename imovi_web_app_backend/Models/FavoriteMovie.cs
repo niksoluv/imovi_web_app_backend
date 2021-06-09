@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace imovi_web_app_backend.Models
 {
-    public class FavouriteMovie
+    public class FavoriteMovie
     {
         public int Id { get; set; }
         public int UserId { get; set; }
