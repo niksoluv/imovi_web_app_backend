@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using imovi_web_app_backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -46,6 +47,7 @@ namespace imovi_web_app_backend.Controllers
 
         // POST api/comments/>
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<Comment>> Post(Comment comment)
         {
             if (comment == null)
@@ -60,6 +62,7 @@ namespace imovi_web_app_backend.Controllers
 
         // PUT api/comments/
         [HttpPut]
+        [Authorize]
         public async Task<ActionResult<Comment>> Put(Comment comment)
         {
             if (comment == null)
@@ -77,6 +80,7 @@ namespace imovi_web_app_backend.Controllers
 
         // DELETE api/comments/
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<ActionResult<Comment>> Delete(int id)
         {
             Comment comment = db.Comments.FirstOrDefault(x => x.Id == id);

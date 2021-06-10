@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using imovi_web_app_backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -29,6 +30,7 @@ namespace imovi_web_app_backend.Controllers
 
         // GET: api/favoritemovies/
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<FavoriteMovie>>> Get()
         {
             return await db.FavoriteMovies.ToListAsync();
@@ -36,6 +38,7 @@ namespace imovi_web_app_backend.Controllers
 
         // GET api/favoritemovies/5
         [HttpGet("{userId}")]
+        [Authorize]
         public async Task<ActionResult<FavoriteMovie>> Get(int userId)
         {
             IEnumerable<FavoriteMovie> movies = await db.FavoriteMovies.Where(x => x.UserId == userId).ToListAsync();
@@ -45,8 +48,9 @@ namespace imovi_web_app_backend.Controllers
             return new ObjectResult(movies);
         }
 
-        // POST api/favoritemovies/
+        // POST api/favoritemovies
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<Comment>> Post(FavoriteMovie movie)
         {
             if (movie == null)
@@ -62,8 +66,9 @@ namespace imovi_web_app_backend.Controllers
             return Ok(movie);
         }
 
-        // PUT api/favoritemovies/
+        // PUT api/favoritemovies
         [HttpPut]
+        [Authorize]
         public async Task<ActionResult<FavoriteMovie>> Put(FavoriteMovie movie)
         {
             if (movie == null)
@@ -79,11 +84,12 @@ namespace imovi_web_app_backend.Controllers
             return Ok(movie);
         }
 
-        // DELETE api/favoritemovies/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<FavoriteMovie>> Delete(int id)
+        // DELETE api/favoritemovies
+        [HttpDelete]
+        [Authorize]
+        public async Task<ActionResult<FavoriteMovie>> Delete(FavoriteMovie m)
         {
-            FavoriteMovie movie = db.FavoriteMovies.FirstOrDefault(x => x.Id == id);
+            FavoriteMovie movie = db.FavoriteMovies.FirstOrDefault(x => x.UserId == m.UserId && x.MovieId == m.MovieId);
             if (movie == null)
                 return NotFound();
 

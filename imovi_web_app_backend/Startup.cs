@@ -27,9 +27,9 @@ namespace imovi_web_app_backend {
             string con = "Server=(localdb)\\mssqllocaldb;Database=ImoviDB;Trusted_Connection=True;";
             services.AddDbContext<ImoviDbContext>(options => options.UseSqlServer(con));
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options => 
+                .AddCookie(options =>
                 {
-                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/api/users/auth");
+                    options.Cookie.Name = "UserLoginCookie";
                 });
             services.AddControllers();
         }

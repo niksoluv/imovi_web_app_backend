@@ -5,7 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace imovi_web_app_backend.Controllers {
     [ApiController]
@@ -15,8 +18,8 @@ namespace imovi_web_app_backend.Controllers {
         public UsersController(ImoviDbContext context) {
             db = context;
             if (!db.Users.Any()) {
-                db.Users.Add(new User { Name = "Tom", Age = 26 });
-                db.Users.Add(new User { Name = "Alice", Age = 31 });
+                db.Users.Add(new User { Email = "user1@gmail.com", Password = "1111", Name = "Tom", RegistrationDate = DateTime.Now.Date} );
+                db.Users.Add(new User { Email = "user2@gmail.com", Password = "1111", Name = "Alice", RegistrationDate = DateTime.Now.Date} );
                 db.SaveChanges();
             }
         }
@@ -73,5 +76,60 @@ namespace imovi_web_app_backend.Controllers {
             await db.SaveChangesAsync();
             return Ok(user);
         }
+
+        [HttpPost]
+        [Route("login")]
+        //[ValidateAntiForgeryToken]
+        public async Task<ActionResult<User>> Login([Bind] User u)
+        {
+            User user = await db.Users.FirstOrDefaultAsync(x => x.Email == u.Email && x.Password == u.Password);
+
+            if (user == null)
+                return NotFound("User not found");
+
+            await Authenticate(user.Email);
+            return Ok(user);
+        }
+
+        [HttpPost]
+        [Route("register")]
+        //[ValidateAntiForgeryToken]
+        public async Task<ActionResult<User>> Register([Bind] User u)
+        {
+            User user = await db.Users.FirstOrDefaultAsync(x => x.Email == u.Email);
+
+            if (user == null)
+            {
+                user = new User() { Email = u.Email, Password = u.Password, RegistrationDate = DateTime.Now.Date };
+                db.Users.Add(user);
+                await db.SaveChangesAsync();
+                await Authenticate(user.Email);
+
+                return Ok(user);
+            }
+            else
+            {
+                return BadRequest("User is already registered!");
+            }
+        }
+
+        private async Task Authenticate(string userName)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimsIdentity.DefaultNameClaimType, userName)
+            };
+            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+        }
+
+        [HttpGet]
+        [Route("logout")]
+        public async Task<ActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Ok();
+        }
+
     }
 }
