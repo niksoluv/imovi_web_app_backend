@@ -100,7 +100,7 @@ namespace imovi_web_app_backend.Controllers {
 
             if (user == null)
             {
-                user = new User() { Email = u.Email, Password = u.Password, RegistrationDate = DateTime.Now.Date };
+                user = new User() { Email = u.Email, Password = u.Password, Name = u.Name, RegistrationDate = DateTime.Now.Date };
                 db.Users.Add(user);
                 await db.SaveChangesAsync();
                 await Authenticate(user.Email);
