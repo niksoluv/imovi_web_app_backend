@@ -96,11 +96,11 @@ namespace imovi_web_app_backend.Controllers {
         //[ValidateAntiForgeryToken]
         public async Task<ActionResult<User>> Register([Bind] User u)
         {
-            User user = await db.Users.FirstOrDefaultAsync(x => x.Email == u.Email);
+            User user = await db.Users.FirstOrDefaultAsync(x => x.Email == u.Email || x.Name == u.Name);
 
             if (user == null)
             {
-                user = new User() { Email = u.Email, Password = u.Password, RegistrationDate = DateTime.Now.Date };
+                user = new User() { Email = u.Email, Password = u.Password, Name = u.Name, RegistrationDate = DateTime.Now.Date };
                 db.Users.Add(user);
                 await db.SaveChangesAsync();
                 await Authenticate(user.Email);
@@ -109,7 +109,7 @@ namespace imovi_web_app_backend.Controllers {
             }
             else
             {
-                return BadRequest("User is already registered!");
+                return BadRequest("User with such email/username is already registered!");
             }
         }
 
