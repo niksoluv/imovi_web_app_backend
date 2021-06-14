@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 
 namespace imovi_web_app_backend {
     public class Startup {
@@ -27,10 +28,29 @@ namespace imovi_web_app_backend {
             string con = "Server=(localdb)\\mssqllocaldb;Database=ImoviDB;Trusted_Connection=True;";
             services.AddDbContext<ImoviDbContext>(options => options.UseSqlServer(con));
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
                 {
                     options.Cookie.Name = "UserLoginCookie";
-                });
+                    options.SlidingExpiration = true;
+                    options.ExpireTimeSpan = new TimeSpan(1, 0, 0); // Expires in 1 hour
+                    options.Events.OnRedirectToLogin = (context) =>
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        return Task.CompletedTask;
+                };
+
+                options.Cookie.HttpOnly = true;
+                // Only use this when the sites are on different domains
+                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+            });
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.WithOrigins("http://localhost:3000")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials());
+            });
             services.AddControllers();
         }
 
@@ -47,6 +67,7 @@ namespace imovi_web_app_backend {
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseCors("CorsPolicy");
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
             });

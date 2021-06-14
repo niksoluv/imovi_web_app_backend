@@ -6,9 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace imovi_web_app_backend.Controllers {
     [ApiController]
@@ -77,12 +79,21 @@ namespace imovi_web_app_backend.Controllers {
             return Ok(user);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("login")]
         //[ValidateAntiForgeryToken]
-        public async Task<ActionResult<User>> Login([Bind] User u)
+        public async Task<ActionResult<User>> Login([FromHeader(Name = "Authorization")] string authHeader)
         {
-            User user = await db.Users.FirstOrDefaultAsync(x => x.Email == u.Email && x.Password == u.Password);
+            string encodedEmailPassword = authHeader.Substring("Basic ".Length).Trim();
+            string emailPassword = Encoding
+                .GetEncoding("iso-8859-1")
+                .GetString(Convert.FromBase64String(encodedEmailPassword));
+            // Get email and password
+            int seperatorIndex = emailPassword.IndexOf(':');
+            string email = emailPassword.Substring(0, seperatorIndex);
+            string password = emailPassword.Substring(seperatorIndex + 1);
+
+                User user = await db.Users.FirstOrDefaultAsync(x => x.Email == email && x.Password == password);
 
             if (user == null)
                 return NotFound("User not found");
@@ -125,6 +136,7 @@ namespace imovi_web_app_backend.Controllers {
 
         [HttpGet]
         [Route("logout")]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
