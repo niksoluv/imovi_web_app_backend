@@ -56,13 +56,15 @@ namespace imovi_web_app_backend.Controllers
         public async Task<ActionResult<Comment>> Post(FavoriteMovie movie)
         {
             User currUser = db.Users.FirstOrDefault(x => x.Email == User.Identity.Name);
+            movie.UserId = currUser.Id;
+
             if (movie == null)
                 return BadRequest();
             if (!db.Users.Any(x => x.Id == currUser.Id))
                 return BadRequest("There is no such user! (Wrong UserId)");
             if (db.FavoriteMovies.Any(x => x.MovieId == movie.MovieId && x.UserId == currUser.Id))
                 return Ok(db.FavoriteMovies.FirstOrDefault(x => x.MovieId == movie.MovieId && x.UserId == currUser.Id));
-
+            
             db.FavoriteMovies.Add(movie);
             await db.SaveChangesAsync();
 
@@ -92,9 +94,10 @@ namespace imovi_web_app_backend.Controllers
         [HttpDelete]
         [Authorize]
         public async Task<ActionResult<FavoriteMovie>> Delete(FavoriteMovie m)
-        {
+        { 
             User currUser = db.Users.FirstOrDefault(x => x.Email == User.Identity.Name);
-            FavoriteMovie movie = db.FavoriteMovies.FirstOrDefault(x => x.UserId == currUser.Id && x.MovieId == m.MovieId);
+            m.UserId = currUser.Id;
+            FavoriteMovie movie = db.FavoriteMovies.FirstOrDefault(x => x.UserId == m.Id && x.MovieId == m.MovieId);
             if (movie == null)
                 return NotFound();
 
