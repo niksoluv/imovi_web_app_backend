@@ -30,7 +30,7 @@ namespace imovi_web_app_backend {
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
                 {
-                    options.Cookie.Name = "UserLoginCookie";
+                    options.Cookie.Name = "ApplicationCookie";
                     options.SlidingExpiration = true;
                     options.ExpireTimeSpan = new TimeSpan(1, 0, 0); // Expires in 1 hour
                     options.Events.OnRedirectToLogin = (context) =>

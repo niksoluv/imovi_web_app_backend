@@ -97,7 +97,7 @@ namespace imovi_web_app_backend.Controllers
         { 
             User currUser = db.Users.FirstOrDefault(x => x.Email == User.Identity.Name);
             m.UserId = currUser.Id;
-            FavoriteMovie movie = db.FavoriteMovies.FirstOrDefault(x => x.UserId == m.Id && x.MovieId == m.MovieId);
+            FavoriteMovie movie = db.FavoriteMovies.FirstOrDefault(x => x.UserId == m.UserId && x.MovieId == m.MovieId);
             if (movie == null)
                 return NotFound();
 
