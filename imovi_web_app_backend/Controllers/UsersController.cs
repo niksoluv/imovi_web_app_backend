@@ -143,5 +143,20 @@ namespace imovi_web_app_backend.Controllers {
             return Ok();
         }
 
+        [HttpGet]
+        [Route("current")]
+        //[ValidateAntiForgeryToken]
+        public async Task<ActionResult<User>> CurrentUser()
+        {
+            if (User.Identity.Name == null)
+                return NotFound("There is no authentificated user!");
+
+            User currUser = await db.Users.FirstOrDefaultAsync(x => x.Email == User.Identity.Name);
+
+            if (currUser == null)
+                return NotFound("User not found");
+            
+            return Ok(currUser);
+        }
     }
 }
