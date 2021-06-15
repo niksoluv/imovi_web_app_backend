@@ -63,7 +63,7 @@ namespace imovi_web_app_backend.Controllers
             if (!db.Users.Any(x => x.Id == currUser.Id))
                 return BadRequest("There is no such user! (Wrong UserId)");
             if (db.FavoriteMovies.Any(x => x.MovieId == movie.MovieId && x.UserId == currUser.Id))
-                return Ok(db.FavoriteMovies.FirstOrDefault(x => x.MovieId == movie.MovieId && x.UserId == currUser.Id));
+                return Ok("exists");
 
             db.FavoriteMovies.Add(movie);
             await db.SaveChangesAsync();

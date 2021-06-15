@@ -47,6 +47,7 @@ namespace imovi_web_app_backend.Controllers
 
         // POST api/comments/>
         [HttpPost]
+        [Route("add")]
         [Authorize]
         public async Task<ActionResult<Comment>> Post(Comment comment)
         {
@@ -54,14 +55,20 @@ namespace imovi_web_app_backend.Controllers
                 return BadRequest("Wrong comment");
             if (comment.Text.Length > 300)
                 return BadRequest("Comment text is too long!");
+
+            User currUser = db.Users.FirstOrDefault(x => x.Email == User.Identity.Name);
+            comment.UserId = currUser.Id;
+            comment.Date = DateTime.Now;
+
             db.Comments.Add(comment);
             await db.SaveChangesAsync();
-
+            
             return Ok(comment);
         }
 
-        // PUT api/comments/
+        // PUT api/comments/edit
         [HttpPut]
+        [Route("edit")]
         [Authorize]
         public async Task<ActionResult<Comment>> Put(Comment comment)
         {
@@ -71,19 +78,22 @@ namespace imovi_web_app_backend.Controllers
                 return NotFound();
             if (comment.Text.Length > 300)
                 return BadRequest("Comment text is too long!");
-            
+
             db.Update(comment);
             await db.SaveChangesAsync();
 
             return Ok(comment);
         }
 
-        // DELETE api/comments/
-        [HttpDelete("{id}")]
+        // POST api/comments/delete
+        [HttpPost]
+        [Route("delete")]
         [Authorize]
-        public async Task<ActionResult<Comment>> Delete(int id)
+        public async Task<ActionResult<Comment>> Delete(Comment c)
         {
-            Comment comment = db.Comments.FirstOrDefault(x => x.Id == id);
+            User currUser = db.Users.FirstOrDefault(x => x.Email == User.Identity.Name);
+
+            Comment comment = db.Comments.FirstOrDefault(x => x.UserId == currUser.Id && x.MovieId == c.MovieId && x.Text == c.Text);
             if (comment == null)
                 return NotFound();
 
