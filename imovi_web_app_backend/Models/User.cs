@@ -11,6 +11,7 @@ namespace imovi_web_app_backend.Models {
         public string Email { get; set; }
         public string Password { get; set; }
         public string Name { get; set; }
+        public virtual ICollection<UserProfileColors> ProfileColors { get; set; }
         public DateTime BirthDate { get; set; }
         public DateTime RegistrationDate { get; set; }
     }

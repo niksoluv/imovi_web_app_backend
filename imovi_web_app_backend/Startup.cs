@@ -26,25 +26,24 @@ namespace imovi_web_app_backend {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
             string con = "Server=(localdb)\\mssqllocaldb;Database=ImoviDB;Trusted_Connection=True;";
-            services.AddDbContext<ImoviDbContext>(options => options.UseSqlServer(con));
+            services.AddDbContext<ImoviDbContext>(
+                options => options.UseSqlServer(con)
+                .UseLazyLoadingProxies());
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-                {
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options => {
                     options.Cookie.Name = "ApplicationCookie";
                     options.SlidingExpiration = true;
                     options.ExpireTimeSpan = new TimeSpan(1, 0, 0); // Expires in 1 hour
-                    options.Events.OnRedirectToLogin = (context) =>
-                    {
+                    options.Events.OnRedirectToLogin = (context) => {
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         return Task.CompletedTask;
-                };
+                    };
 
-                options.Cookie.HttpOnly = true;
-                // Only use this when the sites are on different domains
-                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
-            });
-            services.AddCors(options =>
-            {
+                    options.Cookie.HttpOnly = true;
+                    // Only use this when the sites are on different domains
+                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+                });
+            services.AddCors(options => {
                 options.AddPolicy("CorsPolicy",
                     builder => builder.WithOrigins("http://localhost:3000")
                         .AllowAnyHeader()
@@ -52,6 +51,10 @@ namespace imovi_web_app_backend {
                         .AllowCredentials());
             });
             services.AddControllers();
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

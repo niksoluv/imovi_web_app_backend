@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using System.Drawing;
 
 namespace imovi_web_app_backend.Controllers {
     [ApiController]
@@ -19,11 +20,11 @@ namespace imovi_web_app_backend.Controllers {
         ImoviDbContext db;
         public UsersController(ImoviDbContext context) {
             db = context;
-            if (!db.Users.Any()) {
-                db.Users.Add(new User { Email = "user1@gmail.com", Password = "1111", Name = "Tom", RegistrationDate = DateTime.Now.Date} );
-                db.Users.Add(new User { Email = "user2@gmail.com", Password = "1111", Name = "Alice", RegistrationDate = DateTime.Now.Date} );
-                db.SaveChanges();
-            }
+            //if (!db.Users.Any()) {
+            //    db.Users.Add(new User { Email = "user1@gmail.com", Password = "1111", Name = "Tom", RegistrationDate = DateTime.Now.Date} );
+            //    db.Users.Add(new User { Email = "user2@gmail.com", Password = "1111", Name = "Alice", RegistrationDate = DateTime.Now.Date} );
+            //    db.SaveChanges();
+            //}
         }
 
         [HttpGet]
@@ -108,10 +109,23 @@ namespace imovi_web_app_backend.Controllers {
         public async Task<ActionResult<User>> Register([Bind] User u)
         {
             User user = await db.Users.FirstOrDefaultAsync(x => x.Email == u.Email || x.Name == u.Name);
-
+            Random rnd = new Random();
+            int num = rnd.Next(10);
+            List<UserProfileColors> colors = new List<UserProfileColors>();
             if (user == null)
             {
-                user = new User() { Email = u.Email, Password = u.Password, Name = u.Name, RegistrationDate = DateTime.Now.Date };
+                for (int i = 0; i < (num > 2 ? num : 3); ++i)
+                {
+                    UserProfileColors color = new UserProfileColors()
+                    {
+                        Color = String.Format("#{0:X6}", rnd.Next(0x1000000))
+                    };
+                    colors.Add(color);
+                }
+                
+                user = new User() { Email = u.Email, Password = u.Password, Name = u.Name,
+                    RegistrationDate = DateTime.Now.Date,
+                ProfileColors = colors.ToList()};
                 db.Users.Add(user);
                 await db.SaveChangesAsync();
                 await Authenticate(user.Email);

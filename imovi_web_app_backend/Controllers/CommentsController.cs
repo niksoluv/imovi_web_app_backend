@@ -31,14 +31,15 @@ namespace imovi_web_app_backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Comment>>> Get()
         {
-            return await db.Comments.ToListAsync();
+            return await db.Comments.Include(p=>p.CommentReplies).ToListAsync();
         }
 
         // GET api/comments/5
         [HttpGet ("{movieId}")]
         public async Task<ActionResult<IEnumerable<Comment>>> Get(int movieId)
         {
-            IEnumerable<Comment> comments = await db.Comments.Where((x) => x.MovieId == movieId).ToListAsync();
+            IEnumerable<Comment> comments = await db.Comments.Where((x) =>
+            x.MovieId == movieId).Include(p => p.CommentReplies).ToListAsync();
             if (!comments.Any())
                 return NoContent();
 

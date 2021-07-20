@@ -10,6 +10,7 @@ namespace imovi_web_app_backend.Models {
         public DbSet<User> Users { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<FavoriteMovie> FavoriteMovies { get; set; }
+        public DbSet<CommentReply> CommentReplies { get; set; }
 
         public ImoviDbContext(DbContextOptions<ImoviDbContext> options)
             : base(options) {
